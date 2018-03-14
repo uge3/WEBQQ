@@ -1,0 +1,221 @@
+{% extends 'index.html' %}
+{% block head_css_js %}
+    <link href="/static/css/web_chat/board.css" rel="stylesheet">
+{% endblock %}
+{% block page-container %}
+{% csrf_token %}
+    <p>聊天室.....聊天室</p>
+     <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">联系人</a></li>
+        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">群组</a></li>
+        <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">通知</a></li>
+        <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">配置</a></li>
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="home">
+            <div class="jumbotron row chat-frame chat_mp"><!--大框-->
+                <div class="list-box col-md-3 chat_mp"><!--左边框-->
+                    <ul class="list-group">
+
+                    </ul>
+                左边框
+                </div>
+                <div class="content_box col-md-7 chat_mp"><!--中间框-->
+                    <div class="content-header"><!--中间头部-->
+                        正在与   聊天中
+                    </div>
+                    <div class="content-chat" id="result"><!--中间聊天记录-->
+                        中间聊天记录
+                    </div>
+                    <div class="content-sendbox row chat_mp"><!--发送框-->
+                        <div class="msg-box col-md-9 chat_mp">
+                            <textarea name="msg" id="msg" cols="55"></textarea>
+                        </div>
+                        <div class="msg-box-but col-md-2">
+                            <button type="button" class="btn btn-success" >发送</button>CTRL+ENTER
+                        </div>
+                    </div>
+
+
+            </div>
+                <div class="right-box col-md-2 chat_mp"><!--右边框-->
+                右边框
+            </div>
+            </div>
+
+        </div>
+        <div role="tabpanel" class="tab-pane" id="profile">...2</div>
+        <div role="tabpanel" class="tab-pane" id="messages">...3</div>
+        <div role="tabpanel" class="tab-pane" id="settings">...4</div>
+      </div>
+
+
+{% endblock %}
+{% block online_visitors %}
+{% endblock %}
+{% block foot_js %}
+  <!-- 下方JS -->
+    <script type="text/javascript">
+
+
+    //crsf-token自动加载
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfsafeMethod(method){
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({//当前所有ajax发送 全局
+        beforeSend: function (xhr, settings) {//发送ajax前 先执行这个函数
+            xhr.setRequestHeader('X-CSRFtoken', csrftoken);
+        }
+    });
+////
+
+    //定时器
+{#    var RefreshMsgs =setInterval(function(){#}
+        GetMsg();
+{#    },3000);#}
+
+    $(function () {
+        GetMsg();
+        logdcontacts();//页面加载自动调用
+    });
+
+    //csrf-token
+    function Getcsrf(){
+       return $('input[name="csrfmiddlewaretoken"]').val();
+    }
+
+
+    //页面显示函数
+    function AddSentMsg(msg_text){
+        var d= new Date();//日期
+        var send_time= d.toLocaleString();
+        var msg_ele = "<div class='msg-tiem'>"+"<p>"+"【{{ request.user.userprofile.name }}】  "+send_time+"</p>"+msg_text+"</div>";
+        $("#result").append(msg_ele);
+        $("#result").animate({scrollTop:$("#result")[0].scrollHeight},1000);//滚动条自动滑动
+    }
+
+
+    //发送到后台
+    function SendMsg(msg_text){
+        var contact_id =$(".content-header h4 span").attr("contact_id");
+        var contact_type =$(".content-header h4 span").attr("contact_type");
+        var msg_dic={
+            'contact_type':contact_type,//类型
+            'to':contact_id,//ID
+            'from':"{{ request.user.userprofile.id }}",//发送人ID
+            'from_name':"{{ request.user.userprofile.name }}",//发送人名
+            'msg':msg_text
+        };
+       // $.post("{% url 'send_msg' %} ",{'data':JSON.stringify(msg_dic),'csrfmiddlewaretoken':Getcsrf()},function(callback){
+        $.post("{% url 'send_msg' %} ",{'data':JSON.stringify(msg_dic)},function(callback){
+            console.log(callback);
+
+        })
+
+
+    }
+    //点击好友
+    function openbox(ele){
+
+        var contact_id=$(ele).attr("contact_id");//获取ID
+        var contact_type=$(ele).attr("contact_type");//获取类型
+        var contact_name=$(ele).text();//好友名
+        var eles="<h4 class='tops'>正在与   <span contact_id='"+contact_id+"'contact_type='"+contact_type+"'>"+contact_name+"</span>    聊天中</h4>";
+        $(".content_box .content-header").html(eles);//更新
+
+         //alert(eles);
+    }
+
+    //好友列表获取
+    function logdcontacts(){
+        $.get("{% url 'load_contact_list' %}",function(callback){//回调函数
+
+            var data = JSON.parse(callback); //转回数组
+            $.each(data.contact_list,function(index,ele){//字符串拼接
+                var eles="<li class='list-group-item'>" +
+                        "<a onclick='openbox(this);' href='#' class='list-group-item' contact_id='"+ele.id+"' contact_type='single_contact' >"+ele.name+"</a>" +
+                        "<span class='badge'></span></li>";
+                $('.list-group').append(eles);//加入
+            })
+        });
+    }
+
+    //个人接收
+    function AddRecvSentMsg(msg_item){
+        var msg_ele="<div class='msg-item-recv'><p>"+msg_item.from_name+"&nbsp;&nbsp;"+msg_item['times']+"</p>" +
+                "<p>"+msg_item.msg+"</p></div>";
+        $("#result").append(msg_ele);
+        $("#result").animate({scrollTop:$("#result")[0].scrollHeight},1000);//滚动条自动滑动
+    }
+
+    //收消息
+    function GetMsg(){
+        $.get("{% url 'get_msg' %}",function(callback){
+            console.log(callback);
+            var msg_list =JSON.parse(callback);//转回格式 列表
+            var now_session_id = $(".content-header span").attr("contact_id");//取当前聊天的对象ID
+            var now_session_type = $(".content-header span").attr("contact_type");//取当前聊天的对象ID
+            $.each(msg_list,function(index,msg_item){//循环
+                console.log(msg_item);
+                if (msg_item.contact_type==now_session_type){//判断类型是否一样
+                    if (msg_item.from==now_session_id){//判断是否是当前聊天对象
+                        //alert(msg_item);
+                        AddRecvSentMsg(msg_item);//调用进行显示
+                    }
+                }
+
+            });
+            GetMsg();//调用自己
+
+        })
+    }
+
+    //ctrl+回车发送
+    $.fn.ctrlEnter = function (btns, fn) {//ctrl+回车发送
+         var thiz = $(this);
+         btns = $(btns);
+         function performAction (e) {
+             fn.call(thiz, e);
+         }
+         thiz.bind("keydown", function (e) {
+            if (e.keyCode === 13 && e.ctrlKey) {
+                performAction(e);
+                e.preventDefault(); //阻止默认回车换行
+            }
+         });
+     btns.bind("click", performAction);
+    };
+    $("#msg").ctrlEnter("button", function () {
+
+{#       $("<p class='post'></p>").append(this.val().replace(/\n/g, "<br/>")).fadeIn('slow').appendTo("#result");#}
+        var msg_text =this.val();
+        if($.trim(msg_text).length>0){//消息不为空时
+            SendMsg(msg_text)
+        }
+        //var s=new AddSentMsg(msg_text);
+        AddSentMsg(msg_text);
+
+        this.val("");
+    });
+     </script>
+{% endblock %}

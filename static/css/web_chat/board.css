@@ -1,0 +1,54 @@
+/*去内外框*/
+.chat_mp{
+    margin: 0px;
+    padding: 0px;
+}
+
+.chat-frame{/* 大框*/
+    border: 2px solid;
+    height: 600px;
+}
+/*==========左边框============*/
+.list-box{
+    height: 598px;
+    border: 1px silver solid;
+}
+
+
+/* ================中间框================*/
+.content_box{ /* 中间框大框*/
+    height: 598px;
+    border: 1px silver solid;
+}
+.content-header{/*中间头部*/
+    background-color: #6FA5DB;
+    height: 25px;
+}
+.tops{
+    margin-top: 0;
+}
+.content-chat{/*中间聊天记录*/
+    height: 500px;
+    border: 1px solid gold;
+    overflow: auto;
+}
+.content-sendbox{/*发送框*/
+    height: 71px;
+    border: 1px solid darkorange;
+    background-color: white;
+}
+.msg-box textarea{/*输入框*/
+    height:70px;
+    width: 100%;
+    resize: none;
+    border: none;
+}
+.msg-box-but{/*发送键*/
+    margin-top: 20px;
+}
+
+/*=======右边框===========*/
+.right-box{
+    height: 598px;
+    border: 1px silver solid;
+}

@@ -1,0 +1,150 @@
+{% extends 'index.html' %}
+    {% block head_css_js %}
+        <link href="/static/login/css" rel="stylesheet">
+        <style type="text/css">@charset "UTF-8";
+    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak, .ng-hide:not(.ng-hide-animate) {
+        display: none !important;
+    }
+
+    ng\:form {
+        display: block;
+    }
+
+    .ng-animate-shim {
+        visibility: hidden;
+    }
+
+    .ng-anchor {
+        position: absolute;
+    }</style>
+
+         <script type="text/javascript" async="" defer="" src="/static/login/js/piwik.js"></script>
+
+
+
+    {% endblock %}
+
+
+    {% block page-container %}
+        <div class="jumbotron jumbotron-home text-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 signup-form">
+                        <form id="fm" class="form-inline ng-pristine ng-valid ng-scope ng-valid-email" ng-controller="SignupCtrl" action="{% url 'login' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group col-sm-5">
+                                <label for="username">用户名：</label>
+                                <input class="form-control ng-pristine ng-valid  ng-touched ng-untouched ng-empty"
+                                    focus="" id="username" type="text" ng-model="username" name="username" placeholder="username">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <label for="password">密  码：</label>
+                                <input class="form-control ng-pristine ng-untouched ng-valid ng-empty" id="password"
+                                    type="password" ng-model="password" name="password" placeholder="Password">
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" value="1" name="rmb"> 一个月内自动登陆
+                                    </label>
+                                    <div class="right">
+                                        <a href="#">忘记密码？</a>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class=" col-sm-12 signup-form">
+                                    <div class="form-group col-sm-5">
+                                    <label for="check_code">验证码:</label>
+                                    <input type="text" class="form-control ng-pristine ng-valid  ng-touched ng-untouched ng-empty" name="check_code" id="check_code" placeholder="请输入验证码">
+                                </div>
+                                    <div class="form-group col-sm-4">
+                                        <label for="check_code">点击刷新:</label>
+                                        <img id="check_code_img" src="/check_code.html" onclick="changeCheckCode(this);">
+                                    </div>
+                                    <div class="form-group col-sm-3">
+{#                                    <button  class="btn btn-primary" type="submit" id="submit" name="submit">#}
+{#                                                登陆#}
+{#                                    </button>#}
+                                    <a id="submit" class="btn btn-default">登 陆</a>
+
+                                </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-12 signup-form">
+                                    <div class="form-group col-sm-4" style="padding: 10px;">
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                    </div>
+                                    <div class="col-xs-9 col-sm-4" style="padding-left: 0;">
+                                        <div class="alert alert-danger hide">
+                                            <span style="padding: 0 5px 0 5px;display: inline-block;font-size: 14px">
+                                                <i class="fa fa-minus-circle" aria-hidden="true"></i>
+                                            </span>
+                                            <span id="error_msg" style="font-size: 12px;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+    {% endblock %}
+
+    {% block foot_js %}
+        <script src="/static/js/jquery-1.12.4.js"></script>
+        <script type="text/javascript">
+            $(function () {
+                bindLogin();
+            });//页面加载自动调用
+            function bindLogin() {
+                $('#submit').click(function () {
+                    var $msg = $('#error_msg');//用来动态显示错误 提示
+                    $msg.parent().addClass('hide');//初始为隐藏提示标签
+                    URL=window.location.pathname;
+                    $.ajax({
+                        url: '{% url "login" %}',
+                        type: 'POST',
+                        data: $('#fm').serialize(),//表单所有内容
+                        dataType: 'JSON',
+                        success: function (arg) {
+                            console.log(arg.status);
+                            if(arg.status){
+                                //alert('1111');
+                                //location.href = '/';//跳 转到主页
+                                if(URL!= '{% url "login" %}'){
+                                    location.href = URL;//跳 转当前页
+                                }else {
+                                    location.href = '/';//跳 转到主页
+                                }
+
+                            }else{
+                                $msg.parent().removeClass('hide');//移除隐藏提示标签
+                                $msg.text(arg.message);
+                                var img = $('#check_code_img')[0];//图片验证码变量
+                                img.src = img.src + '?';//重载图片验证码
+                                $('#password,#check_code').val('');//密码和验证码框清空
+                            }
+
+                        }
+                    })
+
+                })
+            }
+            //刷新验证码
+            function changeCheckCode(ths){
+                ths.src = ths.src +  '?';
+            }
+        </script>
+    {% endblock %}
+
+

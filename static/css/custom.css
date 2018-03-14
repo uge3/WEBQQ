@@ -1,0 +1,30 @@
+/*内容左边*/
+.left-contnet-panel{
+    border: 2px solid coral;
+}
+/*内容右边*/
+.right-sidebar{
+    border: 2px solid aqua;
+}
+/*文章图片*/
+.article-head-img {
+
+}
+.article-head-img img{
+    height: 125px;
+    width:220px;
+}
+/*文章标题*/
+.article-title{
+    margin-left: 55px;
+}
+/*文章内容 */
+.article-box{
+    margin-bottom: 5px;
+}
+
+/*错误提示信息 */
+.error_msg .errorlist{
+    color: red ;
+
+}
