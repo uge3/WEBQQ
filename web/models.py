@@ -10,11 +10,11 @@ class Article(models.Model):
     贴子
     '''
     title=models.CharField(u"文章标题",max_length=255,unique=True)#不可重名,唯一(unique)
-    category = models.ForeignKey("Category",verbose_name=u"版块")#外键关联到版块
+    category = models.ForeignKey("Category",verbose_name=u"版块",on_delete=models.CASCADE)#外键关联到版块
     head_img = models.ImageField(upload_to="static/imgs/uploads")#图片,当前目录下的图片目录
     summary =models.CharField(max_length=255,verbose_name='简介')
     content =models.TextField(u"内容")#文章内容,多行
-    author = models.ForeignKey("UserProfile",verbose_name=u"作者")
+    author = models.ForeignKey("UserProfile",verbose_name=u"作者",on_delete=models.CASCADE)
     publish_date =models.DateTimeField(auto_now=True)#创建时间
     hidden = models.BooleanField(default=True)#是否展示
     priority=models.IntegerField(u"优先级",default=1000)#
@@ -31,9 +31,9 @@ class Comment(models.Model):
     '''
     评论
     '''
-    article=models.ForeignKey(Article)#对应文章
-    user=models.ForeignKey("UserProfile")#评论人
-    parent_comment =models.ForeignKey(verbose_name='回复评论', to='self',related_name='back_comment',blank=True, null=True)#多级评论
+    article=models.ForeignKey(Article,on_delete=models.CASCADE)#对应文章
+    user=models.ForeignKey("UserProfile",on_delete=models.CASCADE)#评论人
+    parent_comment =models.ForeignKey(verbose_name='回复评论', to='self',related_name='back_comment',blank=True, null=True,on_delete=models.CASCADE)#多级评论
     comment =models.TextField(max_length=1000)#评论内容 字数
     date=models.DateTimeField(auto_now=True)#评论创建时间
     def __str__(self):
@@ -47,8 +47,8 @@ class ThumbUp(models.Model):
     '''
     点赞
     '''
-    article = models.ForeignKey('Article',verbose_name='点赞',)#对应的文章
-    user =models.ForeignKey('UserProfile')#谁点的赞
+    article = models.ForeignKey('Article',verbose_name='点赞',on_delete=models.CASCADE)#对应的文章
+    user =models.ForeignKey('UserProfile',on_delete=models.CASCADE)#谁点的赞
     date = models.DateTimeField(auto_now=True)#时间
     # def __str__(self):
     #     return self.user
@@ -75,7 +75,7 @@ class UserProfile(models.Model):
     '''
     帐户信息表
     '''
-    user=models.OneToOneField(User)#Djago 帐户管理 一对一
+    user=models.OneToOneField(User,on_delete=models.CASCADE)#Djago 帐户管理 一对一
     name=models.CharField(max_length=32)#用户名
     groups=models.ManyToManyField('UserGroup')#组
     friends =models.ManyToManyField(to='self',related_name='my_friends')#朋友
