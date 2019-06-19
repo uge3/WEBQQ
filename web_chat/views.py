@@ -27,28 +27,28 @@ def contacts(request):
 
 
 #发送消息
-def msg(request):
+def send_msg(request):
     #print(request.POST.get('data'))
-    if request.method=="GET":
-        ''''''
-        user_id =str(request.user.userprofile.id)#自己的id
-        #print(user)
-        msg_lists =[]
-        if user_id in GLOBAL_MSG_Q:#如果有自己的消息
-            msg_nums=GLOBAL_MSG_Q[user_id].qsize()#在队列的消息数量
-            if msg_nums ==0:#没有新消息
-                new_msg=GLOBAL_MSG_Q[user_id].get()
-                print('进入阻塞时间')
-                # msg_lists.append(GLOBAL_MSG_Q[user_id].get())#进入阻塞超时时间
-                msg_lists.append(new_msg)
-                print('超时时间')
-            for i in range(msg_nums):#循环添加消息
-                msg_lists.append(GLOBAL_MSG_Q[user_id].get())#队列中信息
-            return HttpResponse(json.dumps(msg_lists))
-        else:
-            GLOBAL_MSG_Q[user_id]=Queue()
-        return HttpResponse(json.dumps(msg_lists))
-    elif request.method=="POST":
+    # if request.method=="GET":
+    #     ''''''
+    #     user_id =str(request.user.userprofile.id)#自己的id
+    #     #print(user)
+    #     msg_lists =[]#消息列表
+    #     if user_id in GLOBAL_MSG_Q:#如果有自己的消息
+    #         msg_nums=GLOBAL_MSG_Q[user_id].qsize()#在队列的消息数量
+    #         if msg_nums ==0:#没有新消息
+    #             new_msg=GLOBAL_MSG_Q[user_id].get()
+    #             print('进入阻塞时间')
+    #             msg_lists.append(GLOBAL_MSG_Q[user_id].get())#进入阻塞超时时间
+    #             msg_lists.append(new_msg)
+    #             print('超时时间')
+    #         for i in range(msg_nums):#循环添加消息
+    #             msg_lists.append(GLOBAL_MSG_Q[user_id].get())#队列中信息
+    #         return HttpResponse(json.dumps(msg_lists))
+    #     else:
+    #         GLOBAL_MSG_Q[user_id]=Queue()
+    #     return HttpResponse(json.dumps(msg_lists))
+    if request.method=="POST":
         try:
             data =json.loads(request.POST.get('data'))
             send_to=data['to']
@@ -60,3 +60,25 @@ def msg(request):
         except Exception as e:
             error='不存在'
             return HttpResponse(json.dumps(error))
+
+#收消息
+def get_msg(request):
+    if request.method=="GET":
+        ''''''
+        user_id =str(request.user.userprofile.id)#自己的id
+        #print(user)
+        msg_lists =[]#消息列表
+        if user_id in GLOBAL_MSG_Q:#如果有自己的消息
+            msg_nums=GLOBAL_MSG_Q[user_id].qsize()#在队列的消息数量
+            if msg_nums ==0:#没有新消息
+                new_msg=GLOBAL_MSG_Q[user_id].get()
+                print('进入阻塞时间')
+                msg_lists.append(GLOBAL_MSG_Q[user_id].get())#进入阻塞超时时间
+                msg_lists.append(new_msg)
+                print('超时时间')
+            for i in range(msg_nums):#循环添加消息
+                msg_lists.append(GLOBAL_MSG_Q[user_id].get())#队列中信息
+            return HttpResponse(json.dumps(msg_lists))
+        else:
+            GLOBAL_MSG_Q[user_id]=Queue()
+        return HttpResponse(json.dumps(msg_lists))

@@ -174,7 +174,7 @@
             console.log(callback);
             var msg_list =JSON.parse(callback);//转回格式 列表
             var now_session_id = $(".content-header span").attr("contact_id");//取当前聊天的对象ID
-            var now_session_type = $(".content-header span").attr("contact_type");//取当前聊天的对象ID
+            var now_session_type = $(".content-header span").attr("contact_type");//取当前聊天的对象类型
             $.each(msg_list,function(index,msg_item){//循环
                 console.log(msg_item);
                 if (msg_item.contact_type==now_session_type){//判断类型是否一样

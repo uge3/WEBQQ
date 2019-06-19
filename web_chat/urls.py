@@ -19,8 +19,8 @@ from web_chat import views
 
 
 urlpatterns = [
-    url(r'^board/$', views.board,name='board'),# 验证码 校对
+    url(r'^board/$', views.board,name='board'),#
     url(r'^contacts/$', views.contacts,name='load_contact_list'),# 好友列表
-    url(r'^msg/$', views.msg,name='send_msg'),# 好友列表
-    url(r'^msg/$', views.msg,name='get_msg'),# 好友列表
+    url(r'^send_msg/$', views.send_msg,name='send_msg'),# 发送消息
+    url(r'^get_msg/$', views.get_msg,name='get_msg'),# 接收消息
 ]
